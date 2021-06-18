@@ -1,0 +1,66 @@
+# yaml 配置
+version: '0.1.7dev'
+services:
+  web:
+    build:
+      context: ./NGINX
+      dockerfile: Dockerfile
+      labels: 
+        - "com.jhvege.description=Portal webapp"
+        - "com.jhvege.department=Finance"
+        - "com.jhvege.label-with-empty-value"
+    image: jhnginx:v4
+    ports:
+     - "8088:80"
+    container_name: jhnginxprod
+    depends_on: 
+      - db
+      - php
+    logging: 
+      driver: json-file
+      options:
+        max-size: "200k" # 单个文件大小为200k
+        max-file: "10" # 最多10个文件
+    volumes:
+      - jhdrupal:/usr/share/nginx
+  db:
+    build:
+      context: ./DB
+      dockerfile: Dockerfile
+      labels: 
+        - "com.jhvege.description=JHMysql"
+        - "com.jhvege.department=Finance"
+        - "com.jhvege.label-with-empty-value"
+      expose: 
+        - "3306"
+      logging: 
+        driver: json-file
+        options: 
+          max-size: "200k" # 单个文件大小为200k
+          max-file: "10" # 最多10个文件
+      volumes:
+         - jhmysql:/var/lib/mysql
+    image: jhmysql:v3
+    container_name: jhmysqlprod
+  php: 
+    build: 
+      context: ./PHP
+      dockerfile: Dockerfile
+      labels: 
+        - "com.jhvege.description=JHPHP"
+        - "com.jhvege.department=Finance"
+        - "com.jhvege.label-with-empty-value"
+      expose: 
+        - "9000"
+      logging: 
+        driver: json-file
+        options:
+          max-size: "200k" # 单个文件大小为200k
+          max-file: "10" # 最多10个文件
+    image: jhphp:v4
+    container_name: jhphpprod
+    volumes:
+      - jhdrupal:/usr/share/nginx
+volumes:
+  jhdrupal: {}
+  jhmysql: {}

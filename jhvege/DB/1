@@ -1,0 +1,5 @@
+#!/bin/sh
+#comments
+/usr/sbin/init
+mysql_secure_installation < sql.txt
+
