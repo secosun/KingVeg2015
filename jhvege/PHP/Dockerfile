@@ -1,19 +1,99 @@
 FROM centos:7
-RUN yum install -y epel-release \
-    && yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm \
-    && yum install -y yum-utils \
-    && yum install -y php73-php-fpm php73-php-cli php73-php-bcmath php73-php-gd php73-php-json \
-       php73-php-mbstring php73-php-mcrypt php73-php-mysqlnd php73-php-opcache php73-php-pdo php73-php-pecl-crypto \
-       php73-php-pecl-mcrypt php73-php-pecl-geoip php73-php-recode php73-php-snmp php73-php-soap php73-php-xml  php73-php-zip \
-    && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/opt/remi/php73/php.ini
-RUN  ln -s  /opt/remi/php73/root/usr/bin/php  /usr/bin/ && /opt/remi/php73/root/usr/sbin/php-fpm -t 
-#关闭php-fpm
-#kill -INT `cat /usr/local/php/var/run/php-fpm.pid`
-#重启php-fpm
-#kill -USR2 `cat /usr/local/php/var/run/php-fpm.pid`
+WORKDIR /opt
+COPY php736.tar.gz . 
+COPY libzip120.tar.gz .
+COPY re2c-0.13.7.5.tar.gz .
+RUN tar zxvf php736.tar.gz \
+    && yum -y update \
+    && yum -y install gcc gcc-c++ kernel-devel \
+    && yum -y install wget pcre pcre-devel openssl openssl-devel libicu-devel autoconf \
+    libjpeg libjpeg-devel libpng libpng-devel libxml2 libxml2-devel \
+    zlib zlib-devel glibc glibc-devel glib2 glib2-devel ncurses ncurses-devel curl curl-devel \
+    krb5-devel libidn libidn-devel openldap openldap-devel nss_ldap jemalloc-devel \
+    cmake boost-devel bison automake libevent libevent-devel gd gd-devel libtool* libmcrypt \
+    libmcrypt-devel mcrypt mhash libxslt libxslt-devel readline readline-devel \
+    gmp gmp-devel libcurl libcurl-devel openjpeg-devel gdbm-devel \
+    && groupadd www \
+    && useradd -g www www  \
+    && yum install -y openldap openldap-servers openldap-clients \
+    && cp -frp /usr/lib64/libldap* /usr/lib/ \
+    && yum provides '*/applydeltarpm' \  
+    && yum install deltarpm -y \
+    && tar zxvf libzip120.tar.gz \
+    && cd libzip-1.2.0 \
+    && ./configure \
+    && make -j4 \
+    && make install \
+    && cd .. \
+    && tar zxvf re2c-0.13.7.5.tar.gz \
+    && cd re2c-0.13.7.5 && ./configure && make && make install \
+    && cd .. \
+    && cd php-7.3.6 \
+    && mkdir -p  /usr/local/webservice/php73 && mkdir -p  /usr/local/webservice/php73/etc \
+    && cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h \
+    && ./configure --prefix=/usr/local/webservice/php73 \
+    --with-config-file-path=/usr/local/webservice/php73/etc \ 
+    --with-fpm-user=www \
+    --with-fpm-group=www \
+    --with-mysqli=mysqlnd \
+    --with-pdo-mysql=mysqlnd \ 
+    --with-iconv-dir \
+    --with-jpeg-dir \
+    --with-png-dir \
+    --with-zlib \
+    --with-libxml-dir \ 
+    --with-ldap=shared \
+    --with-gdbm \
+    --with-pear \
+    --with-gettext \ 
+    --with-curl \
+    --with-xmlrpc \
+    --with-openssl \
+    --with-mhash \
+    --with-gd \
+    --enable-fpm \ 
+    --enable-mysqlnd \  
+    --enable-mysqlnd-compression-support \ 
+    --enable-xml \
+    --enable-rpath \
+    --enable-bcmath \
+    --enable-shmop \
+    --enable-sysvsem \
+    --enable-inline-optimization \ 
+    --enable-mbregex \
+    --enable-mbstring \
+    --enable-intl \
+    --enable-ftp \
+    --enable-gd-jis-conv \ 
+    --enable-pcntl \
+    --enable-sockets \ 
+    --enable-zip \
+    --enable-soap \
+    --enable-fileinfo \ 
+    --enable-opcache \
+    --enable-maintainer-zts \ 
+    && make -j 4 && make install
+
+RUN pwd && ls -l /usr/local/webservice/php73/etc/ 
+RUN cp /opt/php-7.3.6/php.ini-development /usr/local/webservice/php73/etc/php.ini \
+    && ls /usr/local/webservice/php73/etc/php-fpm.d \
+    && cp /usr/local/webservice/php73/etc/php-fpm.conf.default /usr/local/webservice/php73/etc/php-fpm.conf \
+    && cp /usr/local/webservice/php73/etc/php-fpm.d/www.conf.default /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
+    && echo "max_execution_time = 120" >> /usr/local/webservice/php73/etc/php.ini \
+    && echo "max_input_time = 120" >> /usr/local/webservice/php73/etc/php.ini \
+    && echo "memory_limit = 1024M" >> /usr/local/webservice/php73/etc/php.ini \
+    && echo "post_max_size = 128M" >> /usr/local/webservice/php73/etc/php.ini \
+    && echo "date.timezone = PRC" >> /usr/local/webservice/php73/etc/php.ini \
+    && echo "extension_dir = '/usr/local/webservice/php73/lib/php/extensions/no-debug-zts-20180731'" >> /usr/local/webservice/php73/etc/php.ini \
+    && cp /opt/php-7.3.6/sapi/fpm/php-fpm.service /usr/lib/systemd/system/php-fpm \
+    && ln -s /usr/local/webservice/php73/bin/php /usr/bin/php \
+    && ln -s /usr/local/webservice/php73/sbin/php-fpm /usr/sbin/php-fpm \
+    && echo "listen = 0.0.0.0:9000" >> /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
+    && /usr/local/webservice/php73/sbin/php-fpm -t \
+    && php -v
+
 COPY id_rsa  id_rsa.pub   /root/.ssh/
 RUN mkdir -p /usr/share/nginx/html \
-#    && touch /usr/share/nginx/html/info.php
      && curl -sS https://getcomposer.org/installer | php \
      && mv composer.phar /usr/local/bin/composer \
      && yum install -y git \
@@ -24,10 +104,11 @@ RUN mkdir -p /usr/share/nginx/html \
      && yum install -y which
 WORKDIR /opt/drupal-7.80
 RUN yum install -y mysql
-CMD /opt/remi/php73/root/usr/bin/php -v \
-    && /opt/remi/php73/root/usr/sbin/php-fpm -c /etc/opt/remi/php73/php.ini -y /etc/opt/remi/php73/php-fpm.conf \
+CMD php -v \
+    && php-fpm -c /usr/local/webservice/php73/etc/php.ini -y /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
     && sleep 60 \
-    && vendor/bin/drush si --db-url=mysql://root:123456@127.0.0.1:3306/drupal7 -y -vvv \
+    && vendor/bin/drush --version \
+    && vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
     && vendor/bin/drush user-password admin --password=12345!@#$% \
-    && cp -rf web/ /usr/share/nginx/html \
+    && cp -rf web/. /usr/share/nginx/html \
     && tail -f --retry /var/log/www.slow.log

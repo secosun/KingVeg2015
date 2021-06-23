@@ -1,5 +1,5 @@
 # yaml 配置
-version: '0.1.7dev'
+version: '3.7'
 services:
   web:
     build:
@@ -13,6 +13,8 @@ services:
     ports:
      - "8088:80"
     container_name: jhnginxprod
+    links:
+      - php
     depends_on: 
       - db
       - php
@@ -31,16 +33,16 @@ services:
         - "com.jhvege.description=JHMysql"
         - "com.jhvege.department=Finance"
         - "com.jhvege.label-with-empty-value"
-      expose: 
-        - "3306"
-      logging: 
-        driver: json-file
-        options: 
-          max-size: "200k" # 单个文件大小为200k
-          max-file: "10" # 最多10个文件
-      volumes:
+    logging: 
+      driver: json-file
+      options: 
+        max-size: "200k" # 单个文件大小为200k
+        max-file: "10" # 最多10个文件
+    volumes:
          - jhmysql:/var/lib/mysql
     image: jhmysql:v3
+    expose:
+      - "3306"
     container_name: jhmysqlprod
   php: 
     build: 
@@ -50,17 +52,24 @@ services:
         - "com.jhvege.description=JHPHP"
         - "com.jhvege.department=Finance"
         - "com.jhvege.label-with-empty-value"
-      expose: 
-        - "9000"
-      logging: 
-        driver: json-file
-        options:
-          max-size: "200k" # 单个文件大小为200k
-          max-file: "10" # 最多10个文件
+    expose: 
+       - "9000"
+    links:
+      - db
+    logging: 
+      driver: json-file
+      options:
+        max-size: "200k" # 单个文件大小为200k
+        max-file: "10" # 最多10个文件
     image: jhphp:v4
     container_name: jhphpprod
+    hostname: localhost
     volumes:
       - jhdrupal:/usr/share/nginx
 volumes:
   jhdrupal: {}
   jhmysql: {}
+
+networks:
+  default:
+    driver: bridge
