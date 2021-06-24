@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:7 AS builderPHP
 WORKDIR /opt
 COPY php736.tar.gz . 
 COPY libzip120.tar.gz .
@@ -92,6 +92,15 @@ RUN cp /opt/php-7.3.6/php.ini-development /usr/local/webservice/php73/etc/php.in
     && /usr/local/webservice/php73/sbin/php-fpm -t \
     && php -v
 
+
+FROM centos:7 AS builderDrupal
+COPY --from=builderPHP /usr/local/webservice/php73 /usr/local/webservice/php73/
+COPY --from=builderPHP /opt/php-7.3.6/sapi/fpm/php-fpm.service /usr/lib/systemd/system/php-fpm
+COPY --from=builderPHP /usr/local/lib /usr/local/lib/
+COPY --from=builderPHP /usr/lib64 /usr/lib64/
+RUN ln -s /usr/local/webservice/php73/bin/php /usr/bin/php \
+    && ln -s /usr/local/webservice/php73/sbin/php-fpm /usr/sbin/php-fpm
+
 COPY id_rsa  id_rsa.pub   /root/.ssh/
 RUN mkdir -p /usr/share/nginx/html \
      && curl -sS https://getcomposer.org/installer | php \
@@ -104,7 +113,21 @@ RUN mkdir -p /usr/share/nginx/html \
      && yum install -y which
 WORKDIR /opt/drupal-7.80
 RUN yum install -y mysql
-CMD php -v \
+
+FROM centos:7
+COPY --from=builderDrupal /opt/drupal-7.80 /opt/drupal-7.80/
+COPY --from=builderDrupal /usr/local/webservice/php73 /usr/local/webservice/php73/
+COPY --from=builderDrupal /usr/lib/systemd/system/php-fpm /usr/lib/systemd/system/php-fpm
+COPY --from=builderDrupal /usr/local/lib /usr/local/lib/
+COPY --from=builderDrupal /usr/lib64 /usr/lib64/
+COPY --from=builderDrupal /usr/bin/which /usr/bin/mysql /usr/bin/
+COPY --from=builderDrupal /usr/sbin/groupadd  /usr/sbin/
+RUN ln -s /usr/local/webservice/php73/bin/php /usr/bin/php \
+    && ln -s /usr/local/webservice/php73/sbin/php-fpm /usr/sbin/php-fpm \
+    && groupadd www \
+    && useradd -g www www
+WORKDIR /opt/drupal-7.80
+CMD php -v && ls \
     && php-fpm -c /usr/local/webservice/php73/etc/php.ini -y /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
     && sleep 60 \
     && vendor/bin/drush --version \
