@@ -1,38 +1,32 @@
-FROM centos:7 AS builderPHP
+FROM alpine:3.12.0 AS builderPHP
 WORKDIR /opt
 COPY php736.tar.gz . 
-COPY libzip120.tar.gz .
-COPY re2c-0.13.7.5.tar.gz .
+COPY auth.json /root/.composer/auth.json
+COPY id_rsa  id_rsa.pub   /root/.ssh/
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+RUN apk update \
+    && apk add --no-cache build-base
+RUN apk add --no-cache libxml2 libxml2-dev
+RUN apk add --no-cache openssl openssl-dev
+RUN apk add --no-cache curl curl-dev
+RUN apk add --no-cache gdbm-dev
+RUN apk add --no-cache libjpeg-turbo-dev libjpeg-turbo
+RUN apk add --no-cache libpng libpng-dev
+RUN apk add --no-cache gettext gettext-dev
+RUN apk add --no-cache --no-cache icu-dev
+RUN apk add --no-cache libzip libzip-dev
+RUN apk add --no-cache ldb-dev libldap openldap-dev
+RUN apk add --no-cache make
+
 RUN tar zxvf php736.tar.gz \
-    && yum -y update \
-    && yum -y install gcc gcc-c++ kernel-devel \
-    && yum -y install wget pcre pcre-devel openssl openssl-devel libicu-devel autoconf \
-    libjpeg libjpeg-devel libpng libpng-devel libxml2 libxml2-devel \
-    zlib zlib-devel glibc glibc-devel glib2 glib2-devel ncurses ncurses-devel curl curl-devel \
-    krb5-devel libidn libidn-devel openldap openldap-devel nss_ldap jemalloc-devel \
-    cmake boost-devel bison automake libevent libevent-devel gd gd-devel libtool* libmcrypt \
-    libmcrypt-devel mcrypt mhash libxslt libxslt-devel readline readline-devel \
-    gmp gmp-devel libcurl libcurl-devel openjpeg-devel gdbm-devel \
-    && groupadd www \
-    && useradd -g www www  \
-    && yum install -y openldap openldap-servers openldap-clients \
-    && cp -frp /usr/lib64/libldap* /usr/lib/ \
-    && yum provides '*/applydeltarpm' \  
-    && yum install deltarpm -y \
-    && tar zxvf libzip120.tar.gz \
-    && cd libzip-1.2.0 \
-    && ./configure \
-    && make -j4 \
-    && make install \
-    && cd .. \
-    && tar zxvf re2c-0.13.7.5.tar.gz \
-    && cd re2c-0.13.7.5 && ./configure && make && make install \
-    && cd .. \
+    && chmod 777 -R php-7.3.6/ \
     && cd php-7.3.6 \
-    && mkdir -p  /usr/local/webservice/php73 && mkdir -p  /usr/local/webservice/php73/etc \
-    && cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h \
-    && ./configure --prefix=/usr/local/webservice/php73 \
-    --with-config-file-path=/usr/local/webservice/php73/etc \ 
+    && mkdir -p  /usr/local/php73 && mkdir -p  /usr/local/php73/etc \
+#    && ./configure --enable-shared=no --enable-static=yes \
+    && ./configure \
+    --prefix=/usr/local/php73 \
+    --with-config-file-path=/usr/local/php73/etc \ 
     --with-fpm-user=www \
     --with-fpm-group=www \
     --with-mysqli=mysqlnd \
@@ -72,66 +66,50 @@ RUN tar zxvf php736.tar.gz \
     --enable-fileinfo \ 
     --enable-opcache \
     --enable-maintainer-zts \ 
-    && make -j 4 && make install
+    && make -j4 && make install
 
-RUN pwd && ls -l /usr/local/webservice/php73/etc/ 
-RUN cp /opt/php-7.3.6/php.ini-development /usr/local/webservice/php73/etc/php.ini \
-    && ls /usr/local/webservice/php73/etc/php-fpm.d \
-    && cp /usr/local/webservice/php73/etc/php-fpm.conf.default /usr/local/webservice/php73/etc/php-fpm.conf \
-    && cp /usr/local/webservice/php73/etc/php-fpm.d/www.conf.default /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
-    && echo "max_execution_time = 120" >> /usr/local/webservice/php73/etc/php.ini \
-    && echo "max_input_time = 120" >> /usr/local/webservice/php73/etc/php.ini \
-    && echo "memory_limit = 1024M" >> /usr/local/webservice/php73/etc/php.ini \
-    && echo "post_max_size = 128M" >> /usr/local/webservice/php73/etc/php.ini \
-    && echo "date.timezone = PRC" >> /usr/local/webservice/php73/etc/php.ini \
-    && echo "extension_dir = '/usr/local/webservice/php73/lib/php/extensions/no-debug-zts-20180731'" >> /usr/local/webservice/php73/etc/php.ini \
-    && cp /opt/php-7.3.6/sapi/fpm/php-fpm.service /usr/lib/systemd/system/php-fpm \
-    && ln -s /usr/local/webservice/php73/bin/php /usr/bin/php \
-    && ln -s /usr/local/webservice/php73/sbin/php-fpm /usr/sbin/php-fpm \
-    && echo "listen = 0.0.0.0:9000" >> /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
-    && /usr/local/webservice/php73/sbin/php-fpm -t \
+RUN cp /opt/php-7.3.6/php.ini-development /usr/local/php73/etc/php.ini 
+
+RUN cp /usr/local/php73/etc/php-fpm.conf.default /usr/local/php73/etc/php-fpm.conf \
+    && cp /usr/local/php73/etc/php-fpm.d/www.conf.default /usr/local/php73/etc/php-fpm.d/www.conf \
+    && echo "max_execution_time = 120" >> /usr/local/php73/etc/php.ini \
+    && echo "max_input_time = 120" >> /usr/local/php73/etc/php.ini \
+    && echo "memory_limit = 1024M" >> /usr/local/php73/etc/php.ini \
+    && echo "post_max_size = 128M" >> /usr/local/php73/etc/php.ini \
+    && echo "date.timezone = PRC" >> /usr/local/php73/etc/php.ini \
+    && echo "extension_dir = '/usr/local/php73/lib/php/extensions/no-debug-zts-20180731'" >> /usr/local/php73/etc/php.ini \
+    && ln -s /usr/local/php73/bin/php /usr/bin/php \
+    && ln -s /usr/local/php73/sbin/php-fpm /usr/sbin/php-fpm \
+    && echo "listen = 0.0.0.0:9000" >> /usr/local/php73/etc/php-fpm.d/www.conf \
+    && /usr/local/php73/sbin/php-fpm -t \
     && php -v
 
-
-FROM centos:7 AS builderDrupal
-COPY --from=builderPHP /usr/local/webservice/php73 /usr/local/webservice/php73/
-COPY --from=builderPHP /opt/php-7.3.6/sapi/fpm/php-fpm.service /usr/lib/systemd/system/php-fpm
-COPY --from=builderPHP /usr/local/lib /usr/local/lib/
-COPY --from=builderPHP /usr/lib64 /usr/lib64/
-RUN ln -s /usr/local/webservice/php73/bin/php /usr/bin/php \
-    && ln -s /usr/local/webservice/php73/sbin/php-fpm /usr/sbin/php-fpm
-
-COPY id_rsa  id_rsa.pub   /root/.ssh/
 RUN mkdir -p /usr/share/nginx/html \
-     && curl -sS https://getcomposer.org/installer | php \
+     && php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \
+     && php composer-setup.php \
      && mv composer.phar /usr/local/bin/composer \
-     && yum install -y git \
-     && git config --global user.name "secosun" \
-     && git config --global user.email "1059095187@qq.com" \
-     && yum install zip unzip -y \
-     && composer create-project secosun/drupal-project:2.0.0 /opt/drupal-7.80  --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}" \
-     && yum install -y which
-WORKDIR /opt/drupal-7.80
-RUN yum install -y mysql
+     && composer -V \
+     && composer create-project secosun/drupal-project:2.0.0 /opt/drupal-7.80  --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}"
+RUN apk add --no-cache mysql-client
 
-FROM centos:7
-COPY --from=builderDrupal /opt/drupal-7.80 /opt/drupal-7.80/
-COPY --from=builderDrupal /usr/local/webservice/php73 /usr/local/webservice/php73/
-COPY --from=builderDrupal /usr/lib/systemd/system/php-fpm /usr/lib/systemd/system/php-fpm
-COPY --from=builderDrupal /usr/local/lib /usr/local/lib/
-COPY --from=builderDrupal /usr/lib64 /usr/lib64/
-COPY --from=builderDrupal /usr/bin/which /usr/bin/mysql /usr/bin/
-COPY --from=builderDrupal /usr/sbin/groupadd  /usr/sbin/
-RUN ln -s /usr/local/webservice/php73/bin/php /usr/bin/php \
-    && ln -s /usr/local/webservice/php73/sbin/php-fpm /usr/sbin/php-fpm \
-    && groupadd www \
-    && useradd -g www www
+FROM alpine:3.12.0
+RUN adduser -D -g www www 
+
+COPY --from=builderPHP /opt/drupal-7.80 /opt/drupal-7.80/
+COPY --from=builderPHP /usr/local/php73/etc/ /usr/local/php73/etc/
+COPY --from=builderPHP /usr/local/php73/var/ /usr/local/php73/var/
+COPY --from=builderPHP /usr/lib/libzip.so.5 /lib/libz.so.1 /usr/lib/libstdc++.so.6 /usr/lib/libintl.so.8 /usr/lib/libgdbm.so.4  /usr/lib/libpng16.so.16 \
+      /usr/lib/libjpeg.so.8 /usr/lib/libxml2.so.2 /lib/libssl.so.1.1 /lib/libcrypto.so.1.1 /usr/lib/libcurl.so.4 /usr/lib/libicuio.so.67 /usr/lib/libicui18n.so.67 /usr/lib/libicuuc.so.67 \
+      /usr/lib/libgcc_s.so.1  /lib/ld-musl-aarch64.so.1 /usr/lib/liblzma.so.5 /usr/lib/libnghttp2.so.14 /usr/lib/libicudata.so.67 \
+      /lib/libssl.so.1.1  /lib/libcrypto.so.1.1  /lib/libz.so.1  /usr/lib/libncursesw.so.6  /usr/lib/libstdc++.so.6  /lib/ld-musl-aarch64.so.1  /usr/lib/libgcc_s.so.1 /usr/lib/
+COPY --from=builderPHP /usr/sbin/php-fpm /usr/sbin/
+COPY --from=builderPHP /usr/bin/mysql /usr/bin/php /usr/bin/ 
 WORKDIR /opt/drupal-7.80
-CMD php -v && ls \
-    && php-fpm -c /usr/local/webservice/php73/etc/php.ini -y /usr/local/webservice/php73/etc/php-fpm.d/www.conf \
+CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
     && sleep 60 \
-    && vendor/bin/drush --version \
-    && vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
-    && vendor/bin/drush user-password admin --password=12345!@#$% \
+    && /opt/drupal-7.80/vendor/bin/drush --version \
+    && /opt/drupal-7.80/vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
+    && /opt/drupal-7.80/vendor/bin/drush user-password admin --password=12345!@#$% \
     && cp -rf web/. /usr/share/nginx/html \
-    && tail -f --retry /var/log/www.slow.log
+    && rm -fR * \
+    && tail -F /var/log/www.slow.log
