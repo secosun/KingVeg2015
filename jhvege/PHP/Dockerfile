@@ -1,8 +1,8 @@
 FROM alpine:3.12.0 AS builderPHP
 WORKDIR /opt
 COPY php736.tar.gz . 
-COPY auth.json /root/.composer/auth.json
-COPY id_rsa  id_rsa.pub   /root/.ssh/
+COPY auth.json ~/.composer/auth.json
+COPY id_rsa  id_rsa.pub   ~/.ssh/
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 RUN apk update \
@@ -14,7 +14,7 @@ RUN apk add --no-cache gdbm-dev
 RUN apk add --no-cache libjpeg-turbo-dev libjpeg-turbo
 RUN apk add --no-cache libpng libpng-dev
 RUN apk add --no-cache gettext gettext-dev
-RUN apk add --no-cache --no-cache icu-dev
+RUN apk add --no-cache icu-dev
 RUN apk add --no-cache libzip libzip-dev
 RUN apk add --no-cache ldb-dev libldap openldap-dev
 RUN apk add --no-cache make
@@ -83,7 +83,7 @@ RUN cp /usr/local/php73/etc/php-fpm.conf.default /usr/local/php73/etc/php-fpm.co
     && echo "listen = 0.0.0.0:9000" >> /usr/local/php73/etc/php-fpm.d/www.conf \
     && /usr/local/php73/sbin/php-fpm -t \
     && php -v
-
+#RUN apk add --no-cache git
 RUN mkdir -p /usr/share/nginx/html \
      && php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \
      && php composer-setup.php \
