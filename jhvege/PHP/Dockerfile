@@ -89,7 +89,7 @@ RUN mkdir -p /usr/share/nginx/html \
      && php composer-setup.php \
      && mv composer.phar /usr/local/bin/composer \
      && composer -V \
-     && composer create-project secosun/drupal-project:2.0.0 /opt/drupal-7.80  --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}"
+     && composer create-project secosun/drupal-project:dev-jhvege /opt/drupal-7.80 --prefer-dist --remove-vcs --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}"
 RUN apk add --no-cache mysql-client
 
 FROM alpine:3.12.0
@@ -104,6 +104,7 @@ COPY --from=builderPHP /usr/lib/libzip.so.5 /lib/libz.so.1 /usr/lib/libstdc++.so
       /lib/libssl.so.1.1  /lib/libcrypto.so.1.1  /lib/libz.so.1  /usr/lib/libncursesw.so.6  /usr/lib/libstdc++.so.6  /lib/ld-musl-aarch64.so.1  /usr/lib/libgcc_s.so.1 /usr/lib/
 COPY --from=builderPHP /usr/sbin/php-fpm /usr/sbin/
 COPY --from=builderPHP /usr/bin/mysql /usr/bin/php /usr/bin/ 
+#COPY auth.json ~/.composer/auth.json
 WORKDIR /opt/drupal-7.80
 CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
     && sleep 60 \
