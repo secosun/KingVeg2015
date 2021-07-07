@@ -1,7 +1,7 @@
 FROM alpine:3.12.0
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 ENV rootpasswd 123456 
-RUN apk add --no-cache mysql mysql-client
+RUN apk add --no-cache 'mariadb=10.4.19-r0' 'mariadb-client=10.4.19-r0'
 COPY mysqlinit.txt /
 COPY jingheproduct.sql /
 COPY mysql.sh /
