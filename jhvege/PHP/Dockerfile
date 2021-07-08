@@ -88,7 +88,7 @@ RUN mkdir -p /usr/share/nginx/html \
      && php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \
      && php composer-setup.php \
      && mv composer.phar /usr/local/bin/composer \
-     && composer -V \
+#     && composer -V \
      && composer create-project secosun/drupal-project:dev-jhvege /opt/drupal-7.80 --prefer-dist --remove-vcs --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}"
 RUN apk add --no-cache mysql-client
 
@@ -108,9 +108,9 @@ COPY --from=builderPHP /usr/bin/mysql /usr/bin/php /usr/bin/
 WORKDIR /opt/drupal-7.80
 CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
     && sleep 60 \
-    && /opt/drupal-7.80/vendor/bin/drush --version \
-    && /opt/drupal-7.80/vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
-    && /opt/drupal-7.80/vendor/bin/drush user-password admin --password=12345!@#$% \
+    && ./vendor/bin/drush --version \
+    && ./vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
+    && ./vendor/bin/drush user-password admin --password=12345!@#$% \
     && cp -rf web/. /usr/share/nginx/html \
     && rm -fR * \
     && tail -F /var/log/www.slow.log
