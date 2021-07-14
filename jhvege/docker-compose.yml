@@ -10,6 +10,8 @@ services:
         - "com.jhvege.department=Finance"
         - "com.jhvege.label-with-empty-value"
     image: jhnginx:v4
+    security_opt:
+     - seccomp=/home/jhvege/KingVeg2015/jhvege/seccomp.json 
     ports:
      - "8088:80"
     container_name: jhnginxprod
@@ -41,6 +43,8 @@ services:
     volumes:
          - jhmysql:/var/lib/mysql
     image: jhmysql:v3
+    security_opt:
+     - seccomp=/home/jhvege/KingVeg2015/jhvege/seccomp.json 
     expose:
       - "3306"
     container_name: jhmysqlprod
@@ -62,6 +66,8 @@ services:
         max-size: "200k" # 单个文件大小为200k
         max-file: "10" # 最多10个文件
     image: jhphp:v4
+    security_opt:
+     - seccomp=/home/jhvege/KingVeg2015/jhvege/seccomp.json 
     container_name: jhphpprod
     hostname: localhost
     volumes:
