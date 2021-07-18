@@ -14,7 +14,8 @@ RUN mysqld_safe --datadir='/var/lib/mysql' & sleep 3 \
    && chmod +x mysql.sh \
    && ./mysql.sh \
    && killall -9 mysqld_safe
-CMD mysqld_safe --datadir='/var/lib/mysql' && tail -F /var/log/mariadb/mariadb.log
+RUN chmod -R a+rwx /var/lib/mysql
+CMD mysqld_safe --datadir='/var/lib/mysql' --user=root && tail -F /var/log/mariadb/mariadb.log
 
 
 
