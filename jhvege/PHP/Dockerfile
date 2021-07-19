@@ -1,4 +1,5 @@
-FROM alpine:3.12.0 AS builderPHP
+#编译生成PHP 并安装drupal
+FROM jhmysql:v3 AS builderPHP
 WORKDIR /opt
 COPY php736.tar.gz . 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
@@ -91,8 +92,19 @@ RUN mkdir -p /usr/share/nginx/html \
      && composer -V \
      && ls -l \
      && composer create-project secosun/drupal-project:dev-jhvege /opt/drupal-7.80 --prefer-dist --remove-vcs --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}"
-RUN apk add --no-cache mysql-client
+#RUN apk add --no-cache mysql-client
 
+WORKDIR /opt/drupal-7.80
+RUN adduser -D -g www www 
+RUN mysqld_safe --datadir='/var/lib/mysql' --user=root & sleep 3 \
+    && php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
+    && ./vendor/bin/drush --version \
+    && ./vendor/bin/drush si --db-url=mysql://root:123456@localhost:3306/drupal7 -y -vvv \
+    && ./vendor/bin/drush user-password admin --password=12345!@#$% \
+    && cp -rf . /usr/share/nginx/html
+
+
+#生成PHP镜像
 FROM alpine:3.12.0
 RUN adduser -D -g www www 
 
@@ -105,12 +117,14 @@ COPY --from=builderPHP /usr/lib/libzip.so.5 /lib/libz.so.1 /usr/lib/libstdc++.so
       /lib/libssl.so.1.1  /lib/libcrypto.so.1.1  /lib/libz.so.1  /usr/lib/libncursesw.so.6  /usr/lib/libstdc++.so.6  /usr/lib/libgcc_s.so.1 /usr/lib/
 COPY --from=builderPHP /usr/sbin/php-fpm /usr/sbin/
 COPY --from=builderPHP /usr/bin/mysql /usr/bin/php /usr/bin/ 
+
+COPY --from=builderPHP /usr/share/nginx/html /usr/share/nginx/html
 #COPY auth.json ~/.composer/auth.json
 WORKDIR /opt/drupal-7.80
 CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
-    && sleep 60 \
-    && ./vendor/bin/drush --version \
-    && ./vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
-    && ./vendor/bin/drush user-password admin --password=12345!@#$% \
-    && cp -rf . /usr/share/nginx/html \
+#    && sleep 60 \
+#    && ./vendor/bin/drush --version \
+#    && ./vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
+#    && ./vendor/bin/drush user-password admin --password=12345!@#$% \
+#    && cp -rf . /usr/share/nginx/html \
     && tail -F /var/log/www.slow.log
