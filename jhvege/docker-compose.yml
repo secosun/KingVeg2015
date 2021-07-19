@@ -11,7 +11,7 @@ services:
         - "com.jhvege.label-with-empty-value"
     image: jhnginx:v4
     security_opt:
-     - seccomp=/home/jhvege/KingVeg2015/jhvege/seccomp.json 
+     - seccomp=seccomp.json 
     ports:
      - "8088:80"
     container_name: jhnginxprod
@@ -44,7 +44,7 @@ services:
          - jhmysql:/var/lib/mysql
     image: jhmysql:v3
     security_opt:
-     - seccomp=/home/jhvege/KingVeg2015/jhvege/seccomp.json 
+     - seccomp=seccomp.json 
     expose:
       - "3306"
     container_name: jhmysqlprod
@@ -67,7 +67,7 @@ services:
         max-file: "10" # 最多10个文件
     image: jhphp:v4
     security_opt:
-     - seccomp=/home/jhvege/KingVeg2015/jhvege/seccomp.json 
+     - seccomp=seccomp.json 
     container_name: jhphpprod
     hostname: localhost
     volumes:
