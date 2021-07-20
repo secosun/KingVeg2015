@@ -1,20 +1,12 @@
+#制作mysql数据库镜像
+FROM mysqlphpbase:v1 as builderDB
 FROM alpine:3.12.0
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-ENV rootpasswd 123456 
-RUN apk add --no-cache 'mariadb=10.4.19-r0' 'mariadb-client=10.4.19-r0'
-COPY mysqlinit.txt /
-COPY jingheproduct.sql /
-COPY mysql.sh /
-COPY mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
-RUN mysql_install_db  --user=mysql --ldata=/var/lib/mysql
-
-RUN mysqld_safe --datadir='/var/lib/mysql' & sleep 3 \
-   && echo -e "\nn\nY\n$rootpasswd\n$rootpasswd\nY\nn\nY\nY\n"  | mysql_secure_installation \
-   && mysql -uroot -p$rootpasswd < mysqlinit.txt \
-   && chmod +x mysql.sh \
-   && ./mysql.sh \
-   && killall -9 mysqld_safe
-#RUN chmod -R a+rwx /var/lib/mysql
+COPY --from=builderDB /usr/bin/my* /usr/bin/ 
+COPY --from=builderDB /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
+COPY --from=builderDB /etc/my.cnf  /etc/my.cnf
+COPY --from=builderDB /var/lib/mysql /var/lib/mysql
+COPY --from=builderDB /usr/lib/libstdc++.so.6 /usr/lib/libncursesw.so.6 /usr/lib/libgcc_s.so.1 /usr/lib/liblzma.so.5 /usr/lib/libaio.so.1 \ 
+     /usr/lib/libaio.so.1 /usr/lib/libpcre.so.1 /usr/lib/
 CMD mysqld_safe --datadir='/var/lib/mysql' --user=root && tail -F /var/log/mariadb/mariadb.log
 
 
