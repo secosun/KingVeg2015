@@ -99,7 +99,7 @@ RUN cp /usr/local/php73/etc/php-fpm.conf.default /usr/local/php73/etc/php-fpm.co
     && /usr/local/php73/sbin/php-fpm -t \
     && php -v
 #RUN apk add  git
-COPY auth.json /root/.composer/auth.json
+#COPY auth.json /root/.composer/auth.json
 #COPY id_rsa  id_rsa.pub   /root/.ssh/
 
 
