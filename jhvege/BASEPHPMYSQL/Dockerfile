@@ -1,5 +1,5 @@
 #制作Drupal镜像
-FROM jhvegebase as builderPHP
+FROM ghcr.io/secosun/jhvegebase as builderPHP
 #下面开始部署项目--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 RUN mkdir -p /usr/share/nginx/html \
      && php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \

@@ -1,5 +1,5 @@
 #制作Drupal镜像
-FROM mysqlphpbase as builderPHP
+FROM ghcr.io/secosun/mysqlphpbase as builderPHP
 #生成PHP镜像
 FROM alpine:3.12.0
 RUN adduser -D -g www www 

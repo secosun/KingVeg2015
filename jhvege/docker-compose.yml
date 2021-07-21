@@ -2,6 +2,7 @@
 version: '3.7'
 services:
   web:
+    image: ghcr.io/secosun/jhnginx:latest
     build:
       context: ./NGINX
       dockerfile: Dockerfile
@@ -9,7 +10,6 @@ services:
         - "com.jhvege.description=Portal webapp"
         - "com.jhvege.department=Finance"
         - "com.jhvege.label-with-empty-value"
-    image: jhnginx:latest
     security_opt:
      - seccomp=seccomp.json 
     ports:
@@ -28,6 +28,7 @@ services:
     volumes:
       - jhdrupal:/usr/share/nginx
   db:
+    image: ghcr.io/secosun/jhmysql:latest
     build:
       context: ./DB
       dockerfile: Dockerfile
@@ -42,13 +43,13 @@ services:
         max-file: "10" # 最多10个文件
     volumes:
          - jhmysql:/var/lib/mysql
-    image: jhmysql:latest
     security_opt:
      - seccomp=seccomp.json 
     expose:
       - "3306"
     container_name: jhmysqlprod
   php: 
+    image: ghcr.io/secosun/jhphp:latest
     build: 
       context: ./PHP
       dockerfile: Dockerfile
@@ -65,7 +66,6 @@ services:
       options:
         max-size: "200k" # 单个文件大小为200k
         max-file: "10" # 最多10个文件
-    image: jhphp:latest
     security_opt:
      - seccomp=seccomp.json 
     container_name: jhphpprod
