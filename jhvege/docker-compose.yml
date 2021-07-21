@@ -9,7 +9,7 @@ services:
         - "com.jhvege.description=Portal webapp"
         - "com.jhvege.department=Finance"
         - "com.jhvege.label-with-empty-value"
-    image: jhnginx:v4
+    image: jhnginx:latest
     security_opt:
      - seccomp=seccomp.json 
     ports:
@@ -42,7 +42,7 @@ services:
         max-file: "10" # 最多10个文件
     volumes:
          - jhmysql:/var/lib/mysql
-    image: jhmysql:v3
+    image: jhmysql:latest
     security_opt:
      - seccomp=seccomp.json 
     expose:
@@ -65,7 +65,7 @@ services:
       options:
         max-size: "200k" # 单个文件大小为200k
         max-file: "10" # 最多10个文件
-    image: jhphp:v4
+    image: jhphp:latest
     security_opt:
      - seccomp=seccomp.json 
     container_name: jhphpprod

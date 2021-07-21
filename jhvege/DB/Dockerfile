@@ -1,5 +1,5 @@
 #制作mysql数据库镜像
-FROM mysqlphpbase:v1 as builderDB
+FROM mysqlphpbase as builderDB
 FROM alpine:3.12.0
 COPY --from=builderDB /usr/bin/my* /usr/bin/ 
 COPY --from=builderDB /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf

@@ -1,6 +1,5 @@
 #制作Drupal镜像
-FROM mysqlphpbase:v1 as builderPHP
-
+FROM mysqlphpbase as builderPHP
 #生成PHP镜像
 FROM alpine:3.12.0
 RUN adduser -D -g www www 
@@ -19,9 +18,4 @@ COPY --from=builderPHP /usr/share/nginx/html /usr/share/nginx/html
 #COPY auth.json ~/.composer/auth.json
 WORKDIR /opt/drupal-7.80
 CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
-#    && sleep 60 \
-#    && ./vendor/bin/drush --version \
-#    && ./vendor/bin/drush si --db-url=mysql://root:123456@db:3306/drupal7 -y -vvv \
-#    && ./vendor/bin/drush user-password admin --password=12345!@#$% \
-#    && cp -rf . /usr/share/nginx/html \
     && tail -F /var/log/www.slow.log
