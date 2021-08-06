@@ -17,6 +17,8 @@ RUN mysqld_safe --datadir='/var/lib/mysql' --user=root & sleep 30 \
     && ls \
     && ../vendor/bin/drush si --db-url=mysql://root:123456@127.0.0.1:3306/drupal7 -y -vvv \
     && ../vendor/bin/drush user-password admin --password=12345!@#$%
-RUN cp -rf .. /usr/share/nginx/html \
+WORKDIR /opt/drupal-7.80
+RUN cp -rf . /usr/share/nginx/html \
+    && ls /usr/share/nginx/html \
     && sed -i 's/127.0.0.1/db/g' /usr/share/nginx/html/web/sites/default/settings.php
 
