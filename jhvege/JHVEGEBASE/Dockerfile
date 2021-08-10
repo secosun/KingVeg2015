@@ -2,7 +2,7 @@
 FROM alpine:3.12.0
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 ENV rootpasswd 123456 
-RUN apk add  'mariadb=10.4.19-r0' 'mariadb-client=10.4.19-r0'
+RUN apk add  'mariadb>=10.4.19-r0' 'mariadb-client>=10.4.19-r0'
 COPY mysqlinit.txt /
 COPY jingheproduct.sql /
 COPY mysql.sh /
@@ -101,6 +101,24 @@ RUN cp /usr/local/php73/etc/php-fpm.conf.default /usr/local/php73/etc/php-fpm.co
 #RUN apk add  git
 #COPY auth.json /root/.composer/auth.json
 #COPY id_rsa  id_rsa.pub   /root/.ssh/
+
+#以下部分配置Xdebug
+COPY xdebug-3.0.4.tgz . 
+RUN tar -xzf xdebug-3.0.4.tgz \
+    && cd xdebug-3.0.4 \
+    && apk add autoconf \
+    && /usr/local/php73/bin/phpize \
+    && ./configure --enable-xdebug --with-php-config=/usr/local/php73/bin/php-config \
+    && make \
+    && make install \
+    && echo "zend_extension=xdebug" >> /usr/local/php73/etc/php.ini \
+    && echo "xdebug.remote_enable = On" >> /usr/local/php73/etc/php.ini \ 
+    && echo "xdebug.remote_handler = dbgp" >> /usr/local/php73/etc/php.ini \ 
+    && echo "xdebug.remote_host= 10.11.18.22" >> /usr/local/php73/etc/php.ini \ 
+    && echo "xdebug.remote_port = 9000" >> /usr/local/php73/etc/php.ini \ 
+    && echo "xdebug.idekey = 'vscode'" >> /usr/local/php73/etc/php.ini \
+    && echo "xdebug.remote_autostart = On" >> /usr/local/php73/etc/php.ini \
+    && php -v
 
 
 

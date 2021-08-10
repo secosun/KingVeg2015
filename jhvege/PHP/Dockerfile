@@ -13,6 +13,7 @@ COPY --from=builderPHP /usr/lib/libzip.so.5 /lib/libz.so.1 /usr/lib/libstdc++.so
       /lib/libssl.so.1.1  /lib/libcrypto.so.1.1  /lib/libz.so.1  /usr/lib/libncursesw.so.6  /usr/lib/libstdc++.so.6  /usr/lib/libgcc_s.so.1 /usr/lib/
 COPY --from=builderPHP /usr/sbin/php-fpm /usr/sbin/
 COPY --from=builderPHP /usr/bin/mysql /usr/bin/php /usr/bin/ 
+COPY --from=builderPHP /usr/local/php73/lib/php/extensions/no-debug-zts-20180731 /usr/local/php73/lib/php/extensions/no-debug-zts-20180731
 
 COPY --from=builderPHP /usr/share/nginx/html /usr/share/nginx/html
 #COPY auth.json ~/.composer/auth.json
