@@ -8,8 +8,8 @@ docker build \
   --cache-from ghcr.io/secosun/jhbase:latest \
   -t ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION \
   -t ghcr.io/secosun/jhbase:latest \
-  -f "../jhvege/JHVEGEBASE/Dockerfile" \
-  "../jhvege/JHVEGEBASE"
+  -f "jhvege/JHVEGEBASE/Dockerfile" \
+  "jhvege/JHVEGEBASE"
 
 # 重新推送  
 docker push ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION
