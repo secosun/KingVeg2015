@@ -27,5 +27,5 @@
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	//"remoteUser": "vscode"
 	//准备基础镜像
-	"initializeCommand":["init.sh"]
+	"initializeCommand":"init.sh"
 }
