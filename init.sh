@@ -4,7 +4,7 @@ DOCKER_IMAGE_VERSION="v1"
 #docker pull ghcr.io/secosun/jhbase:latest || true
 
 # 使用最新拉取的镜像作为缓存层
-docker build \
+podman build \
   --cache-from ghcr.io/secosun/jhbase:latest \
   -t ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION \
   -t ghcr.io/secosun/jhbase:latest \
@@ -15,7 +15,7 @@ docker build \
 # 拉取最新的镜像
 #docker pull ghcr.io/secosun/mysqlphpbase:latest || true
 # 使用最新拉取的镜像作为缓存层
-docker build \
+podman build \
   --cache-from ghcr.io/secosun/mysqlphpbase:latest \
   -t ghcr.io/secosun/mysqlphpbase:$DOCKER_IMAGE_VERSION \
   -t ghcr.io/secosun/mysqlphpbase:latest \
