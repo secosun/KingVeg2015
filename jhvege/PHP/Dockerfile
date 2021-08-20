@@ -20,3 +20,6 @@ COPY --from=builderPHP /usr/share/nginx/html /usr/share/nginx/html
 WORKDIR /opt/drupal-7.80
 CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/www.conf \
     && tail -F /var/log/www.slow.log
+
+FROM builderPHP as devPHP
+apk add git

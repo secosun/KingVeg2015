@@ -1,5 +1,5 @@
 DOCKER_IMAGE_VERSION="v1"
-
+#docker login ghcr.io -u secosun --password ghpjhvege_IcevwYJMfWGB306LCIe7bU3b1Knyjv3uOm1j
 # 拉取最新的镜像
 docker pull ghcr.io/secosun/jhbase:latest || true
 
@@ -12,5 +12,5 @@ docker build \
   "jhvege/JHVEGEBASE"
 
 # 重新推送  
-#docker push ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION
-#docker push ghcr.io/secosun/jhbase:latest
+docker push ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION
+docker push ghcr.io/secosun/jhbase:latest

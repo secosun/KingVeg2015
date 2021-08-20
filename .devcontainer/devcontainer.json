@@ -3,7 +3,7 @@
 {
 	"name": "Alpine",
 	"build": {
-		"dockerfile": "../jhvege/JHVEGEBASE/Dockerfile",
+		"dockerfile": "../jhvege/PHP/Dockerfile",
 		// Update 'VARIANT' to pick an Alpine version: 3.11, 3.12, 3.13, 3.14
 		"args": { "VARIANT": "3.13" }
 	},
