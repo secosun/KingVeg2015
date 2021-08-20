@@ -11,6 +11,7 @@ docker build \
   -f "jhvege/JHVEGEBASE/Dockerfile" \
   "jhvege/JHVEGEBASE"
 
+
 # 拉取最新的镜像
 docker pull ghcr.io/secosun/mysqlphpbase:latest || true
 # 使用最新拉取的镜像作为缓存层
