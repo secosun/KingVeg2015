@@ -10,7 +10,7 @@ docker build \
   -t ghcr.io/secosun/jhbase:latest \
   -f "jhvege/JHVEGEBASE/Dockerfile" \
   "jhvege/JHVEGEBASE"
-
+ 
 
 # 拉取最新的镜像
 docker pull ghcr.io/secosun/mysqlphpbase:latest || true
