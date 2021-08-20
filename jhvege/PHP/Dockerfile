@@ -22,4 +22,4 @@ CMD php-fpm -c /usr/local/php73/etc/php.ini -y /usr/local/php73/etc/php-fpm.d/ww
     && tail -F /var/log/www.slow.log
 
 FROM builderPHP as devPHP
-apk add git
+RUN apk add git

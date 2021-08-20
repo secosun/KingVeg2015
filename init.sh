@@ -12,5 +12,5 @@ docker build \
   "jhvege/JHVEGEBASE"
 
 # 重新推送  
-docker push ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION
-docker push ghcr.io/secosun/jhbase:latest
+#docker push ghcr.io/secosun/jhbase:$DOCKER_IMAGE_VERSION
+#docker push ghcr.io/secosun/jhbase:latest
