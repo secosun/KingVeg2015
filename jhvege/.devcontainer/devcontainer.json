@@ -2,16 +2,15 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.191.0/containers/alpine
 {
 	"name": "Alpine2",
-	"dockerComposeFile": "../jhvege/docker-compose.yml",
+	"dockerComposeFile": "../docker-compose.yml",
 	"service": "php",
     "workspaceFolder": "/opt",
-    "shutdownAction": "stopCompose",
 	/*"build": {
-		"dockerfile": "../jhvege/PHP/Dockerfile",
-		"dockerComposeFile":"",
+		"dockerfile": "../jhvege/DB/Dockerfile",
 		// Update 'VARIANT' to pick an Alpine version: 3.11, 3.12, 3.13, 3.14
 		"args": { "VARIANT": "3.13" }
-	},*/
+	},
+	*/
 	// Set *default* container specific settings.json values on container create. 
 	"settings": {},
 
