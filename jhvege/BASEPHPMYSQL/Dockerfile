@@ -2,12 +2,13 @@
 FROM ghcr.io/secosun/jhvegebase as builderPHP
 COPY compose.pwd .
 #下面开始部署项目--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 RUN mkdir -p /usr/share/nginx/html \
      && php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" \
      && php composer-setup.php \
      && mv composer.phar /usr/local/bin/composer \
      && passwordcompose=$(cat compose.pwd) \
-     && composer config --global --auth github-oauth.github.com  $passwordcompose \
+     && sh -c "composer config --global --auth github-oauth.github.com  $passwordcompose" \
      && composer create-project secosun/drupal-project:dev-jhvege /opt/drupal-7.80 --prefer-dist --remove-vcs --repository "{\"type\": \"vcs\", \"url\": \"https://github.com/secosun/drupal-project\"}"
 #RUN apk add  mysql-client
 #下面开始安装项目--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

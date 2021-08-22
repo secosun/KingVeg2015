@@ -1,5 +1,6 @@
 DOCKER_IMAGE_VERSION="v1"
-#docker login ghcr.io -u secosun --password ghpjhvege_IcevwYJMfWGB306LCIe7bU3b1Knyjv3uOm1j
+passwordcompose=$(cat BASEPHPMYSQL/compose.pwd) 
+docker login ghcr.io -u secosun --password $passwordcompose
 # 拉取最新的镜像
 #docker pull ghcr.io/secosun/jhbase:latest || true
 
