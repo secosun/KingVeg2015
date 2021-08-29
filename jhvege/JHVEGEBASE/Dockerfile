@@ -1,8 +1,12 @@
 #包含PHP与mysql的基础镜像
 FROM alpine:3.12.0
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+&& echo 'https://mirror.tuna.tsinghua.edu.cn/alpine/v3.9/main' >> /etc/apk/repositories \
+&& echo 'https://mirror.tuna.tsinghua.edu.cn/alpine/v3.9/community' >> /etc/apk/repositories
+
 ENV rootpasswd 123456 
-RUN apk add  'mariadb>=10.4.19-r0' 'mariadb-client>=10.4.19-r0'
+#RUN apk add  'mariadb>=10.4.19-r0' 'mariadb-client>=10.4.19-r0'
+RUN apk add  mariadb mariadb-client
 COPY mysqlinit.txt /
 COPY jingheproduct.sql /
 COPY mysql.sh /
@@ -14,7 +18,8 @@ RUN mysqld_safe --datadir='/var/lib/mysql' & sleep 3 \
    && echo -e "\nn\nY\n$rootpasswd\n$rootpasswd\nY\nn\nY\nY\n"  | mysql_secure_installation \
    && mysql -uroot -p$rootpasswd < mysqlinit.txt \
    && chmod +x mysql.sh \
-   && ./mysql.sh \
+   && chmod 777 jingheproduct.sql \
+   && sh /mysql.sh \
    && killall -9 mysqld_safe
 #以上是数据库部分
 #--------------------------------------------------------------------------------------------------------------
@@ -112,12 +117,8 @@ RUN tar -xzf xdebug-3.0.4.tgz \
     && make \
     && make install \
     && echo "zend_extension=xdebug" >> /usr/local/php73/etc/php.ini \
-    && echo "xdebug.remote_enable = On" >> /usr/local/php73/etc/php.ini \ 
-    && echo "xdebug.remote_handler = dbgp" >> /usr/local/php73/etc/php.ini \ 
-    && echo "xdebug.remote_host= 10.11.18.22" >> /usr/local/php73/etc/php.ini \ 
-    && echo "xdebug.remote_port = 9000" >> /usr/local/php73/etc/php.ini \ 
-    && echo "xdebug.idekey = 'vscode'" >> /usr/local/php73/etc/php.ini \
-    && echo "xdebug.remote_autostart = On" >> /usr/local/php73/etc/php.ini \
+    && echo "xdebug.mode = debug" >> /usr/local/php73/etc/php.ini \ 
+    && echo "xdebug.start_with_request = yes" >> /usr/local/php73/etc/php.ini \ 
     && php -v
 
 

@@ -1,34 +1,43 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.191.0/containers/alpine
 {
-	"name": "Alpine2",
+	"name": "PHPAPP",
 	"dockerComposeFile": "../docker-compose.yml",
 	"service": "php",
-    "workspaceFolder": "/opt",
-	/*"build": {
-		"dockerfile": "../jhvege/DB/Dockerfile",
-		// Update 'VARIANT' to pick an Alpine version: 3.11, 3.12, 3.13, 3.14
-		"args": { "VARIANT": "3.13" }
+	"workspaceFolder": "/usr/share/nginx/html/web",
+	// Set *default* container specific settings.json values on container create.
+	"settings": { 
+		"php.validate.executablePath": "/usr/bin/php"
 	},
-	*/
-	// Set *default* container specific settings.json values on container create. 
-	"settings": {},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	// Note that some extensions may not work in Alpine Linux. See https://aka.ms/vscode-remote/linux.
-	"extensions": [],
+	"extensions": [
+		"felixfbecker.php-debug",
+		"bmewburn.vscode-intelephense-client",
+		"mrmlnc.vscode-apache"
+	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	// "forwardPorts": [8080],
+
+	// Use 'portsAttributes' to set default properties for specific forwarded ports. More info: https://code.visualstudio.com/docs/remote/devcontainerjson-reference.
+	"portsAttributes": {
+		"8000": {
+			"label": "Hello Remote World",
+			"onAutoForward": "notify"
+		}
+	},
+
+	// Use 'otherPortsAttributes' to configure any ports that aren't configured using 'portsAttributes'.
+	// "otherPortsAttributes": {
+	// 		"onAutoForward": "silent"
+	// },
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
-
-	// Uncomment when using a ptrace-based debugger like C++, Go, and Rust
-	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
+	// "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	//"remoteUser": "vscode"
-	//准备基础镜像
-	"initializeCommand":"sh init.sh"
+	//"remoteUser": "www",
+	// "initializeCommand":"sh init.sh"
+	"initializeCommand":"init.bat"
 }
