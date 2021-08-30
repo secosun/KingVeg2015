@@ -217,3 +217,5 @@ pip-log.txt
 
 auth.json
 compose.pwd
+id_rsa
+id_rsa.pub
