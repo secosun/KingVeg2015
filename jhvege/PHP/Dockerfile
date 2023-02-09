@@ -1,5 +1,5 @@
 #制作Drupal镜像
-FROM ghcr.io/secosun/mysqlphpbase as builderPHP
+FROM ghcr.io/secosun/mysqlphpbase:v1 as builderPHP
 #生成PHP镜像
 FROM alpine:3.12.0
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
@@ -40,4 +40,6 @@ COPY .vscode/launch.json /usr/share/nginx/html/web/.vscode/launch.json
 COPY id_rsa id_rsa.pub known_hosts /root/.ssh/
 RUN apk add git &&  apk add openssh && chmod 600 /root/.ssh/id_rsa
 #RUN cd /usr/share/nginx/html/web && git remote add origin git@github.com:secosun/drupaldev.git
-RUN cd /usr/share/nginx/html/web && git clone git@github.com:secosun/drupaldev.git
+#RUN mv /usr/share/nginx/html/web /usr/share/nginx/html/web2 \
+#    && cd /usr/share/nginx/html \
+#    && git clone git@github.com:secosun/drupaldev.git web

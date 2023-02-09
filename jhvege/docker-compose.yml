@@ -2,7 +2,7 @@
 version: '3.7'
 services:
   web:
-    image: ghcr.io/secosun/jhnginx:latest
+    image: ghcr.io/secosun/jhnginx:v1
     build:
       context: ./NGINX
       dockerfile: Dockerfile
@@ -14,7 +14,7 @@ services:
 #     - seccomp=seccomp.json 
     ports:
      - "8088:80"
-    container_name: jhnginxprod
+    container_name: jhnginxdev
     links:
       - php
     depends_on: 
@@ -26,9 +26,9 @@ services:
         max-size: "200k" # 单个文件大小为200k
         max-file: "10" # 最多10个文件
     volumes:
-      - jhdrupal:/usr/share/nginx
+      - jhdrupald7:/usr/share/nginx
   db:
-    image: ghcr.io/secosun/jhmysql:latest
+    image: ghcr.io/secosun/jhmysql:v1
     build:
       context: ./DB
       dockerfile: Dockerfile
@@ -42,14 +42,14 @@ services:
         max-size: "200k" # 单个文件大小为200k
         max-file: "10" # 最多10个文件
     volumes:
-         - jhmysql:/var/lib/mysql
+         - jhmysqld7:/var/lib/mysql
 #    security_opt:
 #     - seccomp=seccomp.json 
     expose:
       - "3306"
-    container_name: jhmysqlprod
+    container_name: jhmysqldev
   php: 
-    image: ghcr.io/secosun/jhphp:latest
+    image: ghcr.io/secosun/jhphp:v1
     build: 
       context: ./PHP
       dockerfile: Dockerfile
@@ -68,13 +68,13 @@ services:
         max-file: "10" # 最多10个文件
  #   security_opt:
  #    - seccomp=seccomp.json 
-    container_name: jhphpprod
+    container_name: jhphdev
     hostname: localhost
     volumes:
-      - jhdrupal:/usr/share/nginx
+      - jhdrupald7:/usr/share/nginx
 volumes:
-  jhdrupal: {}
-  jhmysql: {}
+  jhdrupald7: {}
+  jhmysqld7: {}
 
 networks:
   default:
